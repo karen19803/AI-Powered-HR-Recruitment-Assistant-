@@ -59,14 +59,14 @@ You are an expert technical recruiter specializing in data analysis, marketing, 
 ```
 ├── README.md                        # Main documentation (this file)
 ├── n8n/                              # Exported workflow & import notes
-│   ├── workflow.json
+│   ├── Automated Candidate Screener.json
 │   └── README.md
 ├── prompts/                          # AI prompt templates (System + User)
 ├── schema/                           # Structured JSON Schema for validation
 ├── sheets/                           # Google Sheets mapping examples
 ├── docs/                             # Additional documentation (architecture, security, troubleshooting)
 ├── scripts/                          # Utility scripts for deployment/export
-└── .env.example                      # Example environment variables
+└── demo-video/                       # video illustrating the entire work flow
 ```
 
 ---
@@ -80,7 +80,7 @@ cd n8n-cv-screening
 ```
 
 ### 2. **Import the Workflow**
-In n8n → Workflows → Import → upload `n8n/workflow.json`.
+In n8n → Workflows → Import → upload `n8n/Automated Candidate Screener.json`.
 
 ### 3. **Configure Credentials**
 Add credentials for:
