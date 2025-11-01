@@ -1,4 +1,5 @@
-# 🤖 Automated CV Screening Workflow (n8n + Groq + Google Suite)
+# AI-Powered-HR-Recruitment-Assistant- 
+## (n8n + Groq + Google Suite)
 
 This repository contains a **fully automated CV screening pipeline** built using **n8n** — integrating Gmail, Google Drive, PDF text extraction, AI-based comparison (Groq LLaMA‑3.3‑70B), and Google Sheets. The goal is to **automatically evaluate candidate resumes** against job descriptions and record structured results for easy shortlisting.
 
