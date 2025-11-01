@@ -25,14 +25,70 @@ This repository contains a **fully automated CV screening pipeline** built using
 **Model:** `llama-3.3-70b-versatile` (via Groq)
 
 **Prompt Template:**
+***Prompt (User Message):***
 ```markdown
 Candidate's resume:
 {{ $('Standardize').item.json.text }}
+```
 
----
-
+***System Message:***
+```markdown
 # Overview
-You are an expert technical recruiter specializing in data analysis, marketing, and software roles. Analyze the candidate resume in relation to the job description and output a JSON object with score and rationale.
+
+You are an expert technical recruiter specializing in data analysis, Marketing, and software roles. You have been given a job description and a candidate resume. Your task is to analyze the resume in relation to the job description and provide a consistent JSON object containing a score and a brief rationale
+
+Focus specifically on how well the candidate matches the core requirements and ideal profile outlined in the job description. Evaluate both technical skill alignment and business-context understanding. Use reasoning grounded in the actual content of the resume and job post – avoid making assumptions.
+
+## Output
+
+Your output should follow this exact format:
+
+- Overall Fit Rating (0%–100%):
+Assign a number between 0% (terrible match) and 100% (perfect match). Do not give decimals.
+
+Justification for Rating (rationale):
+Explain clearly why this candidate received that score. Reference specific resume content and how it aligns or doesn’t with the job description.
+
+## Job description:
+{{ $json.text }}
+```
+
+**Input Schema (structured JSON):**
+```json
+{
+  "title": "CandidateEvaluation",
+  "type": "object",
+  "properties": {
+    "candidate_name": {
+      "type": "string",
+      "description": "Full name of the candidate as extracted or provided."
+    },
+    "email": {
+      "type": "string",
+      "description": "Candidate email if available."
+    },
+    "job_title": {
+      "type": "string",
+      "description": "Job title or role the candidate applied for."
+    },
+    "match_score": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Overall numerical match score between CV and job description (0%–100%)."
+    },
+    "rationale": {
+      "type": "string",
+      "description": "Brief reasoning or summary explaining the match score."
+    },
+    "recommendation": {
+      "type": "string",
+      "enum": ["Strong Match", "Consider", "Weak Match", "Reject"],
+      "description": "AI’s final recommendation based on overall fit."
+    },
+  "required": ["candidate_name", "job_title", "match_score", "rationale", "recommendation"]
+  }
+}
 ```
 
 **Output Schema (structured JSON):**
