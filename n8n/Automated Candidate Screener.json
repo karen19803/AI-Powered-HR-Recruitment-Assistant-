@@ -1,0 +1,503 @@
+{
+  "name": "Automated Candidate Screener",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "827e5c81-c891-47e5-aa4f-52790bd9e7f7",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "MH9A4gh61MhPPmGC",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "attachment_0",
+        "name": "= {{ $json.from.value[0].name }}'s Resume",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1LPL5pviYwdoQNCpODK_RVTIa3-Dx-8fo",
+          "mode": "list",
+          "cachedResultName": "Resumes",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1LPL5pviYwdoQNCpODK_RVTIa3-Dx-8fo"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        208,
+        0
+      ],
+      "id": "cc81be99-5eee-455d-b352-7a7d54bd21e3",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "MFroPUr5E7m6HXyt",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "application/pdf"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "b681ca48-f09e-47ee-a496-fc5fc57a8d32",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "MFroPUr5E7m6HXyt",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        608,
+        0
+      ],
+      "id": "a97d691a-c2df-46c3-996b-b3114f9cd61e",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5ca3fe02-4506-4e20-81f0-174f34065387",
+              "name": "text",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        816,
+        0
+      ],
+      "id": "72d7b85f-659d-40fe-872d-6925c48c0550",
+      "name": "Standardize"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "1moMU7B9BCgbIVq2ZwUsHXcs5LHhTfHV3",
+          "mode": "list",
+          "cachedResultName": "data analyst job description-10.pdf",
+          "cachedResultUrl": "https://drive.google.com/file/d/1moMU7B9BCgbIVq2ZwUsHXcs5LHhTfHV3/view?usp=drivesdk"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1024,
+        0
+      ],
+      "id": "d74c6056-96f9-4f7f-ad55-b454ffd236bf",
+      "name": "Download file1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "MFroPUr5E7m6HXyt",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        1232,
+        0
+      ],
+      "id": "256547f8-deff-4de5-ad4c-95162af998d8",
+      "name": "Extract from File1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Candidate's resume:\n{{ $('Standardize').item.json.text }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=# Overview\n\nYou are an expert technical recruiter specializing in data analysis, Marketing, and software roles. You have been given a job description and a candidate resume. Your task is to analyze the resume in relation to the job description and provide a consistent JSON object containing a score and a brief rationale\n\nFocus specifically on how well the candidate matches the core requirements and ideal profile outlined in the job description. Evaluate both technical skill alignment and business-context understanding. Use reasoning grounded in the actual content of the resume and job post – avoid making assumptions.\n\n## Output\n\nYour output should follow this exact format:\n\n- Overall Fit Rating (0%–100%):\nAssign a number between 0% (terrible match) and 100% (perfect match). Do not give decimals.\n\nJustification for Rating (rationale):\nExplain clearly why this candidate received that score. Reference specific resume content and how it aligns or doesn’t with the job description.\n\n## Job description:\n{{ $json.text }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1440,
+        0
+      ],
+      "id": "8b001ff3-d071-42ab-8888-b46233b9eb78",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1312,
+        208
+      ],
+      "id": "b259d0b5-e2f3-433e-aea3-1aada187b8f8",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "hIRjaJerMUy0IDO5",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"title\": \"CandidateEvaluation\",\n  \"type\": \"object\",\n  \"properties\": {\n    \"candidate_name\": {\n      \"type\": \"string\",\n      \"description\": \"Full name of the candidate as extracted or provided.\"\n    },\n    \"email\": {\n      \"type\": \"string\",\n      \"description\": \"Candidate email if available.\"\n    },\n    \"job_title\": {\n      \"type\": \"string\",\n      \"description\": \"Job title or role the candidate applied for.\"\n    },\n    \"match_score\": {\n      \"type\": \"integer\",\n      \"minimum\": 0,\n      \"maximum\": 100,\n      \"description\": \"Overall numerical match score between CV and job description (0%–100%).\"\n    },\n    \"rationale\": {\n      \"type\": \"string\",\n      \"description\": \"Brief reasoning or summary explaining the match score.\"\n    },\n    \"recommendation\": {\n      \"type\": \"string\",\n      \"enum\": [\"Strong Match\", \"Consider\", \"Weak Match\", \"Reject\"],\n      \"description\": \"AI’s final recommendation based on overall fit.\"\n    },\n  \"required\": [\"candidate_name\", \"job_title\", \"match_score\", \"rationale\", \"recommendation\"]\n  }\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1616,
+        208
+      ],
+      "id": "18870946-36c3-4ad9-b8c2-34dd73ee4e87",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1552,
+        416
+      ],
+      "id": "25d02db4-025f-4b6f-8a23-8c00c4ac3466",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "hIRjaJerMUy0IDO5",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1jmNKQotHbf4K4T9wYj6kWMCKivyOSZt0wl0WE382Hhg",
+          "mode": "list",
+          "cachedResultName": "Candidates Tracker",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jmNKQotHbf4K4T9wYj6kWMCKivyOSZt0wl0WE382Hhg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jmNKQotHbf4K4T9wYj6kWMCKivyOSZt0wl0WE382Hhg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Full Name": "={{ $json.output.candidate_name }}",
+            "Email": "={{ $json.output.email }}",
+            "Job Title": "={{ $json.output.job_title }}",
+            "Score": "={{ $json.output.match_score }}",
+            "Rationale": "={{ $json.output.rationale }}",
+            "Recommendation": "={{ $json.output.recommendation }}",
+            "CV Upload": "={{ $('Download file').item.json.webViewLink }}"
+          },
+          "matchingColumns": [
+            "Rationale"
+          ],
+          "schema": [
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Job Title",
+              "displayName": "Job Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CV Upload",
+              "displayName": "CV Upload",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Score",
+              "displayName": "Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Rationale",
+              "displayName": "Rationale",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Recommendation",
+              "displayName": "Recommendation",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1824,
+        0
+      ],
+      "id": "8306dc4d-42dd-4ce3-ac2d-3d68a819414b",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "LYnhaqyENApMYfD2",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Standardize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Standardize": {
+      "main": [
+        [
+          {
+            "node": "Download file1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file1": {
+      "main": [
+        [
+          {
+            "node": "Extract from File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "71594736-c9e7-4cec-9d3a-bb0bf2c64f05",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b6f05219d3cdaf9fe1eb4c7dc9e4e32ccf3b70f2b1b04911f11e0e608420ff97"
+  },
+  "id": "mxzIhdv4q67VtzyA",
+  "tags": []
+}
