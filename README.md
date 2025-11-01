@@ -117,11 +117,7 @@ Explain clearly why this candidate received that score. Reference specific resum
 ├── n8n/                              # Exported workflow & import notes
 │   ├── Automated Candidate Screener.json
 │   └── README.md
-├── prompts/                          # AI prompt templates (System + User)
-├── schema/                           # Structured JSON Schema for validation
 ├── sheets/                           # Google Sheets mapping examples
-├── docs/                             # Additional documentation (architecture, security, troubleshooting)
-├── scripts/                          # Utility scripts for deployment/export
 └── demo-video/                       # video illustrating the entire work flow
 ```
 
