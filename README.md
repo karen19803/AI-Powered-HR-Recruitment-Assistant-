@@ -146,7 +146,7 @@ Create a sheet with columns:
 ```
 Full Name | Email | Job Title | CV Upload | Score | Rationale | Recommendation
 ```
-Map them in the Google Sheets node as shown in `/sheets/mapping.md`.
+Map them in the Google Sheets node.
 
 ### 5. **Test the Flow**
 Send yourself an email with a PDF resume attached and watch the sheet auto-populate.
